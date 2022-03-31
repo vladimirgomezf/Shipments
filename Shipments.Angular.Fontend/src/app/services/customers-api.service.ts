@@ -35,8 +35,7 @@ export class CustomersApiService {
 
   deleteCustomer(id: number | string) {
     return this.http.delete(
-      `${environment.originUrl}${environment.apiUrl}/customers/${id}`,
-      data
+      `${environment.originUrl}${environment.apiUrl}/customers/${id}`
     );
   }
 }
