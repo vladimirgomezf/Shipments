@@ -7,35 +7,23 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root',
 })
 export class OrdersApiService {
-  http: HttpClient;
+  readonly apiUrl = `${environment.originUrl}${environment.apiUrl}/orders/`;
 
-  constructor(http: HttpClient) {
-    this.http = http;
-  }
+  constructor(private http: HttpClient) {}
 
   getOrdersList(): Observable<any[]> {
-    return this.http.get<any>(
-      `${environment.originUrl}${environment.apiUrl}/orders`
-    );
+    return this.http.get<any>(this.apiUrl);
   }
 
   addOrder(data: any) {
-    return this.http.post(
-      `${environment.originUrl}${environment.apiUrl}/orders`,
-      data
-    );
+    return this.http.post(this.apiUrl, data);
   }
 
   updateOrder(id: number | string, data: any) {
-    return this.http.put(
-      `${environment.originUrl}${environment.apiUrl}/orders/${id}`,
-      data
-    );
+    return this.http.put(`${this.apiUrl}${id}`, data);
   }
 
   deleteOrder(id: number | string) {
-    return this.http.delete(
-      `${environment.originUrl}${environment.apiUrl}/orders/${id}`
-    );
+    return this.http.delete(`${this.apiUrl}${id}`);
   }
 }
