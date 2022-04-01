@@ -15,6 +15,10 @@ export class CustomersApiService {
     return this.http.get<any>(this.apiUrl);
   }
 
+  getCustomer(id: number | string): Observable<any[]> {
+    return this.http.get<any>(`${this.apiUrl}${id}`);
+  }
+
   addCustomer(data: any) {
     return this.http.post(this.apiUrl, data);
   }
