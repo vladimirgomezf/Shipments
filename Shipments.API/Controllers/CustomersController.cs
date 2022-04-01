@@ -1,13 +1,19 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿#nullable disable
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Shipments.API.Models;
 using Shipments.API.Data;
+using Shipments.API.Models;
 
 namespace Shipments.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CustomersController : Controller
+    public class CustomersController : ControllerBase
     {
         private readonly DataContext _context;
 
@@ -17,59 +23,80 @@ namespace Shipments.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Customers>>> Get()
+        public async Task<ActionResult<IEnumerable<Customers>>> GetCustomers()
         {
-            return Ok(await _context.Customers.ToListAsync());
+            return await _context.Customers.ToListAsync();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Customers>> Get(int id)
+        public async Task<ActionResult<Customers>> GetCustomers(int id)
         {
-            var customer = await _context.Customers.FindAsync(id);
-            if (customer == null)
+            var customers = await _context.Customers.FindAsync(id);
+
+            if (customers == null)
             {
-                return BadRequest("Customer Not found!");
+                return NotFound();
             }
-            return Ok(customer);
+
+            return customers;
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutCustomers(int id, Customers customers)
+        {
+            if (id != customers.Id)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(customers).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!CustomersExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
         }
 
         [HttpPost]
-        public async Task<ActionResult<List<Customers>>> AddCustomer([FromBody] Customers customer)
+        public async Task<ActionResult<Customers>> PostCustomers(Customers customers)
         {
-            _context.Customers.Add(customer);
+            _context.Customers.Add(customers);
             await _context.SaveChangesAsync();
 
-            return Ok(_context.Customers.ToListAsync());
-        }
-
-        [HttpPut]
-        public async Task<ActionResult<List<Customers>>> UpdateCustomer(Customers request)
-        {
-            var dbCustomer = await _context.Customers.FindAsync(request.Id);
-            if (dbCustomer == null)
-                return BadRequest("Customer not found!");
-
-            dbCustomer.Name = request.Name;
-            dbCustomer.Cellphone = request.Cellphone;
-            dbCustomer.Address = request.Address;
-            dbCustomer.Email = request.Email;
-
-            await _context.SaveChangesAsync();
-
-            return Ok(await _context.Customers.ToListAsync());
+            return CreatedAtAction("GetCustomers", new { id = customers.Id }, customers);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<List<Customers>>> DeleteCustomer(int id)
+        public async Task<IActionResult> DeleteCustomers(int id)
         {
-            var dbCustomer = await _context.Customers.FindAsync(id);
-            if (dbCustomer == null)
-                return BadRequest("Customer not found!");
+            var customers = await _context.Customers.FindAsync(id);
+            if (customers == null)
+            {
+                return NotFound();
+            }
 
-            _context.Customers.Remove(dbCustomer);
+            _context.Customers.Remove(customers);
             await _context.SaveChangesAsync();
 
-            return Ok(await _context.Customers.ToListAsync());
+            return NoContent();
+        }
+
+        private bool CustomersExists(int id)
+        {
+            return _context.Customers.Any(e => e.Id == id);
         }
     }
 }

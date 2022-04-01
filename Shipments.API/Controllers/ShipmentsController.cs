@@ -1,13 +1,19 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿#nullable disable
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Shipments.API.Models;
 using Shipments.API.Data;
+using Shipments.API.Models;
 
 namespace Shipments.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ShipmentsController : Controller
+    public class ShipmentsController : ControllerBase
     {
         private readonly DataContext _context;
 
@@ -17,58 +23,80 @@ namespace Shipments.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Shipments.API.Models.Shipments>>> Get()
+        public async Task<ActionResult<IEnumerable<Shipments.API.Models.Shipments>>> GetShipments()
         {
-            return Ok(await _context.Shipments.ToListAsync());
+            return await _context.Shipments.ToListAsync();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Shipments.API.Models.Shipments>> Get(int id)
+        public async Task<ActionResult<Shipments.API.Models.Shipments>> GetShipments(int id)
         {
-            var ships = await _context.Shipments.FindAsync(id);
-            if (ships == null)
+            var shipments = await _context.Shipments.FindAsync(id);
+
+            if (shipments == null)
             {
-                return BadRequest("Shipment Not found!");
+                return NotFound();
             }
-            return Ok(ships);
+
+            return shipments;
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutShipments(int id, Shipments.API.Models.Shipments shipments)
+        {
+            if (id != shipments.Id)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(shipments).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ShipmentsExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
         }
 
         [HttpPost]
-        public async Task<ActionResult<List<Shipments.API.Models.Shipments>>> AddOrder([FromBody] Shipments.API.Models.Shipments shipment)
+        public async Task<ActionResult<Shipments.API.Models.Shipments>> PostShipments(Shipments.API.Models.Shipments shipments)
         {
-            _context.Shipments.Add(shipment);
+            _context.Shipments.Add(shipments);
             await _context.SaveChangesAsync();
 
-            return Ok(_context.Shipments.ToListAsync());
-        }
-
-        [HttpPut]
-        public async Task<ActionResult<List<Shipments.API.Models.Shipments>>> UpdateOrder(Shipments.API.Models.Shipments request)
-        {
-            var dbShips = await _context.Shipments.FindAsync(request.Id);
-            if (dbShips == null)
-                return BadRequest("Shipment not found!");
-
-            dbShips.Order_Id = request.Order_Id;
-            dbShips.Date_Start = request.Date_Start;
-            dbShips.Date_End = request.Date_End;
-
-            await _context.SaveChangesAsync();
-
-            return Ok(await _context.Shipments.ToListAsync());
+            return CreatedAtAction("GetShipments", new { id = shipments.Id }, shipments);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<List<Shipments.API.Models.Shipments>>> DeleteOrder(int id)
+        public async Task<IActionResult> DeleteShipments(int id)
         {
-            var dbShips = await _context.Shipments.FindAsync(id);
-            if (dbShips == null)
-                return BadRequest("Shipment not found!");
+            var shipments = await _context.Shipments.FindAsync(id);
+            if (shipments == null)
+            {
+                return NotFound();
+            }
 
-            _context.Shipments.Remove(dbShips);
+            _context.Shipments.Remove(shipments);
             await _context.SaveChangesAsync();
 
-            return Ok(await _context.Shipments.ToListAsync());
+            return NoContent();
+        }
+
+        private bool ShipmentsExists(int id)
+        {
+            return _context.Shipments.Any(e => e.Id == id);
         }
     }
 }

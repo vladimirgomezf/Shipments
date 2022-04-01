@@ -1,13 +1,19 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿#nullable disable
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Shipments.API.Models;
 using Shipments.API.Data;
+using Shipments.API.Models;
 
 namespace Shipments.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OrdersController : Controller
+    public class OrdersController : ControllerBase
     {
         private readonly DataContext _context;
 
@@ -17,57 +23,80 @@ namespace Shipments.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Orders>>> Get()
+        public async Task<ActionResult<IEnumerable<Orders>>> GetOrders()
         {
-            return Ok(await _context.Orders.ToListAsync());
+            return await _context.Orders.ToListAsync();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Orders>> Get(int id)
+        public async Task<ActionResult<Orders>> GetOrders(int id)
         {
-            var order = await _context.Orders.FindAsync(id);
-            if (order == null)
+            var orders = await _context.Orders.FindAsync(id);
+
+            if (orders == null)
             {
-                return BadRequest("Order Not found!");
+                return NotFound();
             }
-            return Ok(order);
+
+            return orders;
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutOrders(int id, Orders orders)
+        {
+            if (id != orders.Id)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(orders).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!OrdersExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
         }
 
         [HttpPost]
-        public async Task<ActionResult<List<Orders>>> AddOrder([FromBody] Orders order)
+        public async Task<ActionResult<Orders>> PostOrders(Orders orders)
         {
-            _context.Orders.Add(order);
+            _context.Orders.Add(orders);
             await _context.SaveChangesAsync();
 
-            return Ok(_context.Orders.ToListAsync());
-        }
-
-        [HttpPut]
-        public async Task<ActionResult<List<Orders>>> UpdateOrder(Orders request)
-        {
-            var dbOrder = await _context.Orders.FindAsync(request.Id);
-            if (dbOrder == null)
-                return BadRequest("Order not found!");
-
-            dbOrder.Customer_Id = request.Customer_Id;
-            dbOrder.Date = request.Date;
-
-            await _context.SaveChangesAsync();
-
-            return Ok(await _context.Orders.ToListAsync());
+            return CreatedAtAction("GetOrders", new { id = orders.Id }, orders);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<List<Orders>>> DeleteOrder(int id)
+        public async Task<IActionResult> DeleteOrders(int id)
         {
-            var dbOrder = await _context.Orders.FindAsync(id);
-            if (dbOrder == null)
-                return BadRequest("Order not found!");
+            var orders = await _context.Orders.FindAsync(id);
+            if (orders == null)
+            {
+                return NotFound();
+            }
 
-            _context.Orders.Remove(dbOrder);
+            _context.Orders.Remove(orders);
             await _context.SaveChangesAsync();
 
-            return Ok(await _context.Orders.ToListAsync());
+            return NoContent();
+        }
+
+        private bool OrdersExists(int id)
+        {
+            return _context.Orders.Any(e => e.Id == id);
         }
     }
 }
