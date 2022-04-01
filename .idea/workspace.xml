@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="67641367-3550-4ff8-87db-721e30f63c85" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Shipments.sln" beforeDir="false" afterPath="$PROJECT_DIR$/Shipments.sln" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Shipments.Angular.Fontend/angular.json" beforeDir="false" afterPath="$PROJECT_DIR$/Shipments.Angular.Fontend/angular.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Shipments.Angular.Fontend/src/app/app.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/Shipments.Angular.Fontend/src/app/app.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Shipments.Angular.Fontend/src/app/components/customers/show-customer/show-customer.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/Shipments.Angular.Fontend/src/app/components/customers/show-customer/show-customer.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Shipments.Angular.Fontend/src/app/services/customers-api.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Shipments.Angular.Fontend/src/app/services/customers-api.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Shipments.Angular.Fontend/src/environments/environment.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Shipments.Angular.Fontend/src/environments/environment.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,6 +40,7 @@
       <option name="presentableId" value="Default" />
       <updated>1648711781278</updated>
       <workItem from="1648711784688" duration="61000" />
+      <workItem from="1648780106576" duration="5000" />
     </task>
     <servers />
   </component>
