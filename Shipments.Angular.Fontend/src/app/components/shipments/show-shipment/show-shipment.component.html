@@ -1,1 +1,18 @@
-<p>show-shipment works!</p>
+<table class="table table-striped">
+  <thead>
+    <th>Id</th>
+    <th>Order_Id</th>
+    <th>Date_Start</th>
+    <th>Date_End</th>
+    <th>Actions</th>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of shipmentList$ | async">
+      <td>{{ item.id }}</td>
+      <td>{{ item.order_Id }}</td>
+      <td>{{ item.date_Start }}</td>
+      <td>{{ item.date_End }}</td>
+      <td>Edit | Delete</td>
+    </tr>
+  </tbody>
+</table>
