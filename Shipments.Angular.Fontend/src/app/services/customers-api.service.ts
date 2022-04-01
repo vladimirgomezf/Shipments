@@ -7,35 +7,23 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root',
 })
 export class CustomersApiService {
-  http: HttpClient;
+  readonly apiUrl = `${environment.originUrl}${environment.apiUrl}/customers/`;
 
-  constructor(http: HttpClient) {
-    this.http = http;
-  }
+  constructor(private http: HttpClient) {}
 
   getCustomersList(): Observable<any[]> {
-    return this.http.get<any>(
-      `${environment.originUrl}${environment.apiUrl}/customers`
-    );
+    return this.http.get<any>(this.apiUrl);
   }
 
   addCustomer(data: any) {
-    return this.http.post(
-      `${environment.originUrl}${environment.apiUrl}/customers`,
-      data
-    );
+    return this.http.post(this.apiUrl, data);
   }
 
   updateCustomer(id: number | string, data: any) {
-    return this.http.put(
-      `${environment.originUrl}${environment.apiUrl}/customers/${id}`,
-      data
-    );
+    return this.http.put(`${this.apiUrl}${id}`, data);
   }
 
   deleteCustomer(id: number | string) {
-    return this.http.delete(
-      `${environment.originUrl}${environment.apiUrl}/customers/${id}`
-    );
+    return this.http.delete(`${this.apiUrl}${id}`);
   }
 }
